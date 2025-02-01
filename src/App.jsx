@@ -1,14 +1,15 @@
 import { Header } from './components/Header'
 import { Tabs } from './components/Tabs'
-import { TodoCard } from './components/TodoCard'
 import { TodoInput } from './components/TodoInput'
 import { TodoList } from './components/TodoList'
-import { useState, useEffect} from 'react'
+import { useState, useEffect } from 'react'
 
 
 function App() {
   const [todos, setTodos] = useState([{ input: 'Hello! Add your first todo!', complete: true }])
   const [selectedTab, setSelectedTab] = useState('Open')
+  const [editingIndex, setEditingIndex] = useState(null)
+  const [editText, setEditText] = useState('')
 
   function handleAddTodo(newTodo) {
     const newTodoList = [...todos, { input: newTodo, complete: false }]
@@ -33,8 +34,18 @@ function App() {
     handleSaveData(newTodoList)
   }
 
+  function handleSaveEdit() {
+    if (editingIndex === null) {return};
+    const updatedTodos = todos.map((todo, index) => 
+      index === editingIndex ? {...todo, input: editText} : todo
+    )
+    setTodos(updatedTodos);
+    handleSaveData(updatedTodos)
+    setEditingIndex(null)
+  }
+
   function handleSaveData(currTodos) {
-    localStorage.setItem('todo-app', JSON.stringify({ todos: currTodos}))
+    localStorage.setItem('todo-app', JSON.stringify({ todos: currTodos }))
   }
 
   console.log(localStorage);
@@ -52,8 +63,21 @@ function App() {
   return (
     <>
       <Header todos={todos} />
-      <Tabs selectedTab={selectedTab} setSelectedTab={setSelectedTab} todos={todos} />
-      <TodoList todos={todos} selectedTab={selectedTab} handleDeleteTodo={handleDeleteTodo} handleCompleteTodo={handleCompleteTodo}/>
+      <Tabs
+        selectedTab={selectedTab}
+        setSelectedTab={setSelectedTab}
+        todos={todos} />
+      <TodoList
+        todos={todos}
+        selectedTab={selectedTab}
+        handleDeleteTodo={handleDeleteTodo}
+        handleCompleteTodo={handleCompleteTodo}
+        editingIndex={editingIndex}
+        setEditingIndex={setEditingIndex}
+        editText={editText}
+        handleSaveEdit={handleSaveEdit}
+        setEditText={setEditText}
+      />
       <TodoInput handleAddTodo={handleAddTodo} />
     </>
   )
